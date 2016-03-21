@@ -1,9 +1,5 @@
 import asyncio
-import txtulip.reactor
-
-eventloop = asyncio.get_event_loop()
-txtulip.reactor.install(eventloop)
-
+import _twisted_monkey_patches
 import twisted.internet.reactor
 twisted.internet.reactor.run()
 
@@ -20,7 +16,7 @@ async def on_shutdown(app):
     pass
 
 app = aiohttp.web.Application(
-    loop=eventloop,
+    loop=asyncio.get_event_loop(),
     # middlewares=[aiohttp_debugtoolbar.toolbar_middleware_factory]
 )
 # aiohttp_debugtoolbar.setup(app)  # http://127.0.0.1:8080/_debugtoolbar
