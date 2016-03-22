@@ -1,154 +1,21 @@
 README
 
-A RESTful asynch Python web server that runs arbitrary spider code.
+A RESTful async Python web server that runs arbitrary spider code.
 
-The goal of this project is to basically replace `scrapyd` with a server that
-uses `asyncio` instead of `Twisted` which will aid in the development of a
-Twisted-less Scrapy branch.
+$ curl "http://127.0.0.1:8080/api/v1/example"
+Example route response
 
-Why not fork scrapyd?  In the interest of simplicity I chose to start from scratch.
+$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response.status"
+200
 
-.. seealso:: https://github.com/scrapy/scrapyd
+$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response.headers"
+{b'Last-Modified': [b'Fri, 09 Aug 2013 23:54:35 GMT'], b'Etag': [b'"359670651+gzip"'], b'X-Cache': [b'HIT'], b'Date': [b'Mon, 21 Mar 2016 20:17:19 GMT'], b'X-Ec-Custom-Error': [b'1'], b'Cache-Control': [b'max-age=604800'], b'Vary': [b'Accept-Encoding'], b'Content-Type': [b'text/html'], b'Server': [b'ECS (ftw/FBE4)'], b'Expires': [b'Mon, 28 Mar 2016 20:17:19 GMT']}
 
-Server
-------
+$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response"
+<200 http://www.example.com/>
 
-(scrapybox)stav@platu:~/scrapybox$ python server.py
-======== Running on http://127.0.0.1:8080/ ========
-(Press CTRL+C to quit)
+$ curl "http://127.0.0.1:8080/api/v1/parse/eval/self"
+<S 'parse' at 0x7f3a3af2fb38>
 
-Client
-------
-
-stav@platu:~$ curl "http://127.0.0.1:8080/api/v1/godaddy"
-Route: godaddy
-
-Server
-------
-
-<Request GET /api/v1/godaddy >
-2016-03-20 17:50:13 [scrapy] INFO: Enabled extensions:
-['scrapy.extensions.corestats.CoreStats', 'scrapy.extensions.logstats.LogStats']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled downloader middlewares:
-['scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
- 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
- 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
- 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
- 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
- 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
- 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
- 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
- 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
- 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
- 'scrapy.downloadermiddlewares.chunked.ChunkedTransferMiddleware',
- 'scrapy.downloadermiddlewares.stats.DownloaderStats',
- 'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled spider middlewares:
-['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
- 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
- 'scrapy.spidermiddlewares.referer.RefererMiddleware',
- 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
- 'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled item pipelines:
-[]
-2016-03-20 17:50:13 [scrapy] INFO: Spider opened
-2016-03-20 17:50:13 [scrapy] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2016-03-20 17:50:13 [aiohttp.access] INFO: 127.0.0.1 - - [21/Mar/2016:00:50:13 +0000] "GET /api/v1/godaddy HTTP/1.1" 200 15 "-" "curl/7.43.0"
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET http://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.com/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://en.wikipedia.org/robots.txt> from <GET https://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://en.wikipedia.org/robots.txt> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET http://www.wikipedia.org/> from <GET http://www.wikipedia.com/>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://en.wikipedia.org/robots.txt> from <GET https://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://en.wikipedia.org/robots.txt> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/> from <GET http://www.wikipedia.org/>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://www.wikipedia.org/> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Scraped from <200 https://www.wikipedia.org/>
-{'url': 'https://www.wikipedia.org/', 'body': b'<!DOCTYPE html>\n<html lang="mul" dir="ltr">\n<head>\n<meta charset="utf-8">\n<title>Wikipedia</title>\n<'}
-2016-03-20 17:50:13 [scrapy] INFO: Closing spider (finished)
-2016-03-20 17:50:13 [scrapy] INFO: Dumping Scrapy stats:
-{'downloader/request_bytes': 2976,
- 'downloader/request_count': 10,
- 'downloader/request_method_count/GET': 10,
- 'downloader/response_bytes': 34232,
- 'downloader/response_count': 10,
- 'downloader/response_status_count/200': 3,
- 'downloader/response_status_count/301': 7,
- 'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2016, 3, 21, 0, 50, 13, 189675),
- 'httpcache/hit': 10,
- 'item_scraped_count': 1,
- 'log_count/DEBUG': 11,
- 'log_count/INFO': 8,
- 'response_received_count': 3,
- 'scheduler/dequeued': 3,
- 'scheduler/dequeued/memory': 3,
- 'scheduler/enqueued': 3,
- 'scheduler/enqueued/memory': 3,
- 'start_time': datetime.datetime(2016, 3, 21, 0, 50, 13, 53500)}
-2016-03-20 17:50:13 [scrapy] INFO: Spider closed (finished)
-<Request GET /api/v1/godaddy >
-2016-03-20 17:50:13 [scrapy] INFO: Enabled extensions:
-['scrapy.extensions.corestats.CoreStats', 'scrapy.extensions.logstats.LogStats']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled downloader middlewares:
-['scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
- 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
- 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
- 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
- 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
- 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
- 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
- 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
- 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
- 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
- 'scrapy.downloadermiddlewares.chunked.ChunkedTransferMiddleware',
- 'scrapy.downloadermiddlewares.stats.DownloaderStats',
- 'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled spider middlewares:
-['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
- 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
- 'scrapy.spidermiddlewares.referer.RefererMiddleware',
- 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
- 'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2016-03-20 17:50:13 [scrapy] INFO: Enabled item pipelines:
-[]
-2016-03-20 17:50:13 [scrapy] INFO: Spider opened
-2016-03-20 17:50:13 [scrapy] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2016-03-20 17:50:13 [aiohttp.access] INFO: 127.0.0.1 - - [21/Mar/2016:00:50:13 +0000] "GET /api/v1/godaddy HTTP/1.1" 200 15 "-" "curl/7.43.0"
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET http://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.com/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://en.wikipedia.org/robots.txt> from <GET https://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://en.wikipedia.org/robots.txt> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET http://www.wikipedia.org/> from <GET http://www.wikipedia.com/>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/robots.txt> from <GET http://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://en.wikipedia.org/robots.txt> from <GET https://www.wikipedia.org/robots.txt>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://en.wikipedia.org/robots.txt> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Redirecting (301) to <GET https://www.wikipedia.org/> from <GET http://www.wikipedia.org/>
-2016-03-20 17:50:13 [scrapy] DEBUG: Crawled (200) <GET https://www.wikipedia.org/> (referer: None) ['cached']
-2016-03-20 17:50:13 [scrapy] DEBUG: Scraped from <200 https://www.wikipedia.org/>
-{'url': 'https://www.wikipedia.org/', 'body': b'<!DOCTYPE html>\n<html lang="mul" dir="ltr">\n<head>\n<meta charset="utf-8">\n<title>Wikipedia</title>\n<'}
-2016-03-20 17:50:13 [scrapy] INFO: Closing spider (finished)
-2016-03-20 17:50:13 [scrapy] INFO: Dumping Scrapy stats:
-{'downloader/request_bytes': 2976,
- 'downloader/request_count': 10,
- 'downloader/request_method_count/GET': 10,
- 'downloader/response_bytes': 34232,
- 'downloader/response_count': 10,
- 'downloader/response_status_count/200': 3,
- 'downloader/response_status_count/301': 7,
- 'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2016, 3, 21, 0, 50, 13, 685693),
- 'httpcache/hit': 10,
- 'item_scraped_count': 1,
- 'log_count/DEBUG': 11,
- 'log_count/INFO': 8,
- 'response_received_count': 3,
- 'scheduler/dequeued': 3,
- 'scheduler/dequeued/memory': 3,
- 'scheduler/enqueued': 3,
- 'scheduler/enqueued/memory': 3,
- 'start_time': datetime.datetime(2016, 3, 21, 0, 50, 13, 552292)}
-2016-03-20 17:50:13 [scrapy] INFO: Spider closed (finished)
-^C@@@ <Application>
-(scrapybox)stav@platu:~/scrapybox$
+$ curl "http://127.0.0.1:8080/api/v1/parse/eval/self.__dict__"
+{'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler.Crawler object at 0x7f3a3af47b70>}
