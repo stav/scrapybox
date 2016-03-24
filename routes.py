@@ -3,6 +3,7 @@ import api
 
 def add(router):
     ar = router.add_route
-    ar('GET', '/api/example',           api.example)
-    ar('GET', '/api/parse/eval/{code}', api.parse_eval)
-    ar('GET', '/api/delay/{time}',      api.delay)
+    ar('POST', '/api/eval',         api.parse_post)
+    ar('GET',  '/api/eval/{code}',  api.parse_get)
+    ar('GET',  '/api/delay/{time}', api.delay)
+    ar('GET',  '/api/example',      api.example)

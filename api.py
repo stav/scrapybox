@@ -1,21 +1,46 @@
 import asyncio
 import aiohttp
+import scrapy.signals
+import scrapy.crawler
 
-from scrapy.crawler import Crawler
-from scrapy.utils.project import get_project_settings as settings
+from scrapy.utils.project import get_project_settings
 from crawler.spiders import ParseSpider
 
+SETTINGS = get_project_settings()
 
-def example(request):
+
+async def poll(crawler, time=1):
+    while crawler.crawling:
+        await asyncio.sleep(time)
+
+
+async def parse_post(request):
     """
-    $ curl "http://127.0.0.1:8080/api/example"
-    Example route response
+    $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
+    Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
     """
-    text = 'Example route response\n'
+    class Spider(ParseSpider):
+        def parse(self, response):
+            yield {}
+
+    for prop in await request.post():
+        setattr(Spider, prop, eval(request.POST[prop]))
+
+    responses = []
+
+    def item_scraped(item, response, spider):
+        responses.append(response)
+
+    crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
+    crawler.signals.connect(item_scraped, signal=scrapy.signals.item_scraped)
+    crawler.crawl()
+    await poll(crawler)
+    text = 'Crawled responses: {}\n'.format(responses)
+
     return aiohttp.web.Response(body=text.encode('utf-8'))
 
 
-async def parse_eval(request):
+async def parse_get(request):
     """
     $ curl "http://127.0.0.1:8080/api/parse/eval/response.status"
     200
@@ -27,12 +52,12 @@ async def parse_eval(request):
     <200 http://www.example.com/>
 
     $ curl "http://127.0.0.1:8080/api/parse/eval/self"
-    <S 'parse' at 0x7f3a3af2fb38>
+    <Spider 'parse' at 0x7f3a3af2fb38>
 
     $ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
     {'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler.Crawler object at 0x7f3a3af47b70>}
     """
-    class S(ParseSpider):
+    class Spider(ParseSpider):
         result = None
         def parse(self, response):
             self.result = eval(self.code())
@@ -42,15 +67,10 @@ async def parse_eval(request):
         def code():
             return request.match_info.get('code')
 
-    async def poll(crawler):
-        while crawler.crawling:
-            await asyncio.sleep(1)
-        return crawler.spider.result
-
-    crawler = Crawler(S, settings())
+    crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
     crawler.crawl()
-    result = await poll(crawler)
-    text = '{}\n'.format(result)
+    await poll(crawler)
+    text = '{}\n'.format(crawler.spider.result)
 
     return aiohttp.web.Response(body=text.encode('utf-8'))
 
@@ -67,17 +87,22 @@ async def delay(request):
     /api/delay/5
     /api/delay/15
     """
-    class S(ParseSpider):
+    class Spider(ParseSpider):
         def parse(self, response):
             yield
 
-    async def poll(crawler):
-        while crawler.crawling:
-            await asyncio.sleep(float(request.match_info.get('time')))
-
-    crawler = Crawler(S, settings())
+    crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
     crawler.crawl()
-    await poll(crawler)
+    await poll(crawler, float(request.match_info.get('time')))
     text = '{}\n'.format(request.path)
 
+    return aiohttp.web.Response(body=text.encode('utf-8'))
+
+
+def example(request):
+    """
+    $ curl "http://127.0.0.1:8080/api/example"
+    Example route response
+    """
+    text = 'Example route response\n'
     return aiohttp.web.Response(body=text.encode('utf-8'))
