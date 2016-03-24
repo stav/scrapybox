@@ -2,20 +2,20 @@ README
 
 A RESTful async Python web server that runs arbitrary spider code.
 
-$ curl "http://127.0.0.1:8080/api/v1/example"
-Example route response
-
-$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response.status"
+$ curl "http://127.0.0.1:8080/api/parse/eval/response.status"
 200
 
-$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response.headers"
+$ curl "http://127.0.0.1:8080/api/parse/eval/response.headers"
 {b'Last-Modified': [b'Fri, 09 Aug 2013 23:54:35 GMT'], b'Etag': [b'"359670651+gzip"'], b'X-Cache': [b'HIT'], b'Date': [b'Mon, 21 Mar 2016 20:17:19 GMT'], b'X-Ec-Custom-Error': [b'1'], b'Cache-Control': [b'max-age=604800'], b'Vary': [b'Accept-Encoding'], b'Content-Type': [b'text/html'], b'Server': [b'ECS (ftw/FBE4)'], b'Expires': [b'Mon, 28 Mar 2016 20:17:19 GMT']}
 
-$ curl "http://127.0.0.1:8080/api/v1/parse/eval/response"
+$ curl "http://127.0.0.1:8080/api/parse/eval/response"
 <200 http://www.example.com/>
 
-$ curl "http://127.0.0.1:8080/api/v1/parse/eval/self"
-<S 'parse' at 0x7f3a3af2fb38>
+$ curl "http://127.0.0.1:8080/api/parse/eval/self"
+<Spider 'parse' at 0x7f3a3af2fb38>
 
-$ curl "http://127.0.0.1:8080/api/v1/parse/eval/self.__dict__"
+$ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
 {'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler.Crawler object at 0x7f3a3af47b70>}
+
+$ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
+Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]

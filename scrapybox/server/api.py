@@ -1,10 +1,11 @@
 import asyncio
-import aiohttp
+import aiohttp.web
 import scrapy.signals
 import scrapy.crawler
 
 from scrapy.utils.project import get_project_settings
-from crawler.spiders import ParseSpider
+
+from scrapybox.crawler.spiders import ParseSpider
 
 SETTINGS = get_project_settings()
 
@@ -99,10 +100,10 @@ async def delay(request):
     return aiohttp.web.Response(body=text.encode('utf-8'))
 
 
-def example(request):
+def hello(request):
     """
-    $ curl "http://127.0.0.1:8080/api/example"
-    Example route response
+    $ curl "http://127.0.0.1:8080/api/hello"
+    Hello world!
     """
-    text = 'Example route response\n'
+    text = 'Hello world!\n'
     return aiohttp.web.Response(body=text.encode('utf-8'))
