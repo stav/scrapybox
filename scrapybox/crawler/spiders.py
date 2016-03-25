@@ -12,4 +12,4 @@ class ExampleSpider(scrapy.Spider):
 class ExampleYieldSpider(ExampleSpider):
 
     def parse(self, response):
-        yield dict()
+        yield dict(response=response)

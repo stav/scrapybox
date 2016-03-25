@@ -1,0 +1,69 @@
+.box {
+    margin-top: 75px;
+}
+.parse {
+    height: 200px;
+}
+
+/*
+Info circle
+http://nicolasgallagher.com/pure-css-gui-icons/
+*/
+.info {
+    color:#2385BA;
+    display: inline-flex;
+    font: 1em/1.4 Cambria, Georgia, sans-serif;
+}
+.info:before {
+    content:"i";
+    left:3px;
+    width:16px;
+    height:16px;
+    margin-top:-8px;
+    font-size:14px;
+    font-weight:bold;
+    font-style:italic;
+    line-height:15px;
+    text-align:center;
+    color:#fff;
+    background:#2385BA;
+    /* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+}
+
+/*
+Tooltip
+http://www.webdesignerdepot.com/2012/11/how-to-create-a-simple-css3-tooltip/
+http://netdna.webdesignerdepot.com/uploads7/how-to-create-a-simple-css3-tooltip/tooltip_demo.html
+*/
+.tooltip {
+    display: inline;
+    position: relative;
+}
+
+.tooltip:hover:after {
+    background: #333;
+    background: rgba(0,0,0,.8);
+    border-radius: 5px;
+    bottom: 26px;
+    color: #fff;
+    content: attr(title);
+    left: 20%;
+    padding: 5px 15px;
+    position: absolute;
+    z-index: 98;
+    width: 220px;
+}
+
+.tooltip:hover:before {
+    border: solid;
+    border-color: #333 transparent;
+    border-width: 6px 6px 0 6px;
+    bottom: 20px;
+    content: "";
+    left: 50%;
+    position: absolute;
+    z-index: 99;
+}

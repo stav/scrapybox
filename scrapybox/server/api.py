@@ -1,3 +1,4 @@
+import types
 import asyncio
 import aiohttp.web
 import scrapy.signals
@@ -18,24 +19,62 @@ async def poll(crawler, time=1):
 async def parse_post(request):
     """
     $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
-    Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
+    Scraped 2 items: [{'response': <200 http://scrapinghub.com>}, {'response': <200 http://scrapy.org>}]
+
+    <Request POST /api/eval > <MultiDictProxy('start_url': 'scrapy.org', 'parse': 'text = response.xpath(\'id("scrapy-logo")/following-sibling::p\')\r\nitem = dict(text=text.extract())\r\n', 'yield_item': 'on')>
+    2016-03-25 12:08:12 [aiohttp.access] INFO: 127.0.0.1 - - [25/Mar/2016:19:08:12 +0000] "POST /api/eval HTTP/1.1" 200 188 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.116 Chrome/48.0.2564.116 Safari/537.36"
+    Scraped 1 items: [{'text': ['<p>An open source and collaborative framework for extracting the data you need from websites.\n      </p>', '<p>In a fast, simple, yet extensible way.</p>']}]
+
+    http://stackoverflow.com/questions/35256152/can-eval-be-applied-on-a-compiled-ast-node-have-a-local-context
+        self.emit ('\n{}\n', node.args [1] .s.format (* [
+            eval (
+                compile (
+                    ast.Expression (arg),
+                    '<string>',
+                    'eval'
+                ),
+                {},
+                {'include': include}
+            )
+            for arg in node.args [2:]
+        ]))
     """
+    await request.post()
+
     class Spider(scrapybox.crawler.spiders.ExampleYieldSpider):
         pass
 
-    for prop in await request.post():
-        setattr(Spider, prop, eval(request.POST[prop]))
+    if 'start_urls' in request.POST:
+        value = request.POST['start_urls'].strip()
+        if value:
+            Spider.start_urls = eval(value)
 
-    responses = []
+    if 'start_url' in request.POST:
+        value = request.POST['start_url'].strip()
+        if value:
+            url = scrapy.utils.url.add_http_if_no_scheme(value)
+            Spider.start_urls = [url]
+
+    if 'parse' in request.POST:
+        value = request.POST['parse']
+        if value:
+            def parse(self, response):
+                exec(value, globals(), locals())
+                if request.POST.get('yield_item'):
+                    frame_item = locals()['item']
+                    yield frame_item
+            Spider.parse = types.MethodType(parse, Spider)
+
+    items = []
 
     def item_scraped(item, response, spider):
-        responses.append(response)
+        items.append(item)
 
     crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
     crawler.signals.connect(item_scraped, signal=scrapy.signals.item_scraped)
     crawler.crawl()
     await poll(crawler)
-    text = 'Crawled responses: {}\n'.format(responses)
+    text = 'Scraped {} items: {}\n'.format(len(items), items)
 
     return aiohttp.web.Response(body=text.encode('utf-8'))
 

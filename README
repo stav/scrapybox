@@ -19,3 +19,7 @@ $ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
 
 $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
 Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
+
+<Request POST /api/eval > <MultiDictProxy('start_url': 'scrapy.org', 'parse': 'text = response.xpath(\'id("scrapy-logo")/following-sibling::p\')\r\nitem = dict(text=text.extract())\r\n', 'yield_item': 'on')>
+2016-03-25 12:08:12 [aiohttp.access] INFO: 127.0.0.1 - - [25/Mar/2016:19:08:12 +0000] "POST /api/eval HTTP/1.1" 200 188 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.116 Chrome/48.0.2564.116 Safari/537.36"
+Scraped 1 items: [{'text': ['<p>An open source and collaborative framework for extracting the data you need from websites.\n      </p>', '<p>In a fast, simple, yet extensible way.</p>']}]
