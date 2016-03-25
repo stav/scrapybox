@@ -11,7 +11,7 @@ from scrapy.utils.project import get_project_settings as settings
 import scrapybox.server.routes
 
 async def on_shutdown(app):
-    print('@@@', app)
+    print('Shutdown', app)
 
 
 def main():

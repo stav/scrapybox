@@ -5,7 +5,7 @@ import scrapy.crawler
 
 from scrapy.utils.project import get_project_settings
 
-from scrapybox.crawler.spiders import ParseSpider
+import scrapybox.crawler.spiders
 
 SETTINGS = get_project_settings()
 
@@ -20,9 +20,8 @@ async def parse_post(request):
     $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
     Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
     """
-    class Spider(ParseSpider):
-        def parse(self, response):
-            yield {}
+    class Spider(scrapybox.crawler.spiders.ExampleYieldSpider):
+        pass
 
     for prop in await request.post():
         setattr(Spider, prop, eval(request.POST[prop]))
@@ -58,7 +57,7 @@ async def parse_get(request):
     $ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
     {'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler.Crawler object at 0x7f3a3af47b70>}
     """
-    class Spider(ParseSpider):
+    class Spider(scrapybox.crawler.spiders.ExampleSpider):
         result = None
         def parse(self, response):
             self.result = eval(self.code())
@@ -88,10 +87,7 @@ async def delay(request):
     /api/delay/5
     /api/delay/15
     """
-    class Spider(ParseSpider):
-        def parse(self, response):
-            yield
-
+    Spider = scrapybox.crawler.spiders.ExampleSpider
     crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
     crawler.crawl()
     await poll(crawler, float(request.match_info.get('time')))
