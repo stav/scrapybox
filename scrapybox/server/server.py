@@ -10,8 +10,19 @@ from scrapy.utils.project import get_project_settings as settings
 
 import scrapybox.server.routes
 
+
 async def on_shutdown(app):
-    print('Shutdown', app)
+    # http://aiohttp.readthedocs.org/en/stable/web.html#graceful-shutdown
+    # for ws in app['websockets']:
+    #     await ws.close(code=999, message='Server shutdown')
+    print('Shutting down...')
+    # print(asyncio.Server.sockets, 'open sockets for asyncio')
+    # asyncio.Server.close()
+    # print(aiohttp.web.connections, 'open connections for aiohttp')
+    app.shutdown()
+    # aiohttp.web.finish_connections(5)
+    app.cleanup()
+    print('done.')
 
 
 def main():

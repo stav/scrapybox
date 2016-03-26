@@ -1,8 +1,15 @@
-.box {
+.container {
     margin-top: 75px;
 }
 .parse {
     height: 200px;
+}
+.yield-item {
+    float: right;
+    margin-top: 12px;
+}
+.scrapy-settings input[type="checkbox"] {
+    margin-top: 5px;
 }
 
 /*

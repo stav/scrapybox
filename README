@@ -1,12 +1,189 @@
 README
 
-A RESTful async Python web server that runs arbitrary spider code.
+Scrapybox - a Scrapy GUI
+------------------------
+
+A RESTful async Python web server that runs arbitrary code within Scrapy spiders
+via an HTML webapge interface.
+
+1. Server receives POST request:
+
+[26/Mar/2016:21:50:38 +0000] "POST /api/eval HTTP/1.1" 200 3172 "-" "Mozilla/5.0 (X11; Linux..."
+
+2. Server uses Scrapy to crawl site:
+
+2016-03-26 14:50:34 [scrapy] INFO: Enabled extensions:
+['scrapy.extensions.logstats.LogStats', 'scrapy.extensions.corestats.CoreStats']
+2016-03-26 14:50:34 [scrapy] INFO: Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.chunked.ChunkedTransferMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2016-03-26 14:50:34 [scrapy] INFO: Enabled spider middlewares:
+['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2016-03-26 14:50:34 [scrapy] INFO: Enabled item pipelines:
+[]
+2016-03-26 14:50:34 [scrapy] INFO: Spider opened
+2016-03-26 14:50:34 [scrapy] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2016-03-26 14:50:37 [scrapy] DEBUG: Crawled (404) <GET http://scrapy.org/robots.txt> (referer: None)
+2016-03-26 14:50:38 [scrapy] DEBUG: Crawled (200) <GET http://scrapy.org> (referer: None)
+2016-03-26 14:50:38 [scrapy] DEBUG: Scraped from <200 http://scrapy.org>
+{'request': {'encoding': 'utf-8', 'cookies': {}, 'headers': {'User-Agent': ['Mozilla/5.0 (X11; Linux...
+2016-03-26 14:50:38 [scrapy] INFO: Closing spider (finished)
+2016-03-26 14:50:38 [scrapy] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 494,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 10719,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 1,
+ 'downloader/response_status_count/404': 1,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2016, 3, 26, 21, 50, 38, 238364),
+ 'item_scraped_count': 1,
+ 'log_count/DEBUG': 3,
+ 'log_count/INFO': 7,
+ 'response_received_count': 2,
+ 'scheduler/dequeued': 1,
+ 'scheduler/dequeued/memory': 1,
+ 'scheduler/enqueued': 1,
+ 'scheduler/enqueued/memory': 1,
+ 'start_time': datetime.datetime(2016, 3, 26, 21, 50, 34, 479901)}
+2016-03-26 14:50:38 [scrapy] INFO: Spider closed (finished)
+2016-03-26 14:50:38 [aiohttp] INFO: 127.0.0.1 - [26/Mar/2016:21:50:38] "POST /api/eval HTTP/1.1" 200..."
+
+
+3. JSON response is sent back to user:
+
+{
+    items: [
+        {
+            request: {
+                encoding: "utf-8",
+                cookies: { },
+                headers: {
+                    User-Agent: [
+                        "Mozilla/5.0 (X11; Linux x86_64) Scrapybox/0.1 Scrapy/1.2 Python/3.5"
+                    ],
+                    Accept: [
+                        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                    ],
+                    Accept-Language: [
+                        "en"
+                    ],
+                    Accept-Encoding: [
+                        "gzip,deflate"
+                    ]
+                },
+                url: "http://scrapy.org",
+                method: "GET",
+                meta: {
+                    download_slot: "scrapy.org",
+                    download_latency: 0.6338846683502197,
+                    download_timeout: 180,
+                    depth: 0
+                }
+            },
+            response: {
+                url: "http://scrapy.org",
+                flags: [ ],
+                headers: {
+                    Content-Type: [
+                        "text/html; charset=utf-8"
+                    ],
+                    Cache-Control: [
+                        "max-age=600"
+                    ],
+                    Last-Modified: [
+                        "Thu, 03 Mar 2016 10:37:55 GMT"
+                    ],
+                    X-Github-Request-Id: [
+                        "BDADB31E:7CE4:240796FC:56F7042B"
+                    ],
+                    Server: [
+                        "GitHub.com"
+                    ],
+                    Expires: [
+                        "Sat, 26 Mar 2016 22:00:37 GMT"
+                    ],
+                    Date: [
+                        "Sat, 26 Mar 2016 21:50:37 GMT"
+                    ],
+                    Access-Control-Allow-Origin: [
+                        "*"
+                    ]
+                },
+                body: {
+                    title: "Scrapy | A Fast and Powerful Scraping and Web Crawling Framework",
+                    head: "<head> <meta charset="utf-8"> <title>Scrapy | A Fast and Powerful Scraping..."
+                },
+                meta: {
+                    download_slot: "scrapy.org",
+                    download_latency: 0.6338846683502197,
+                    download_timeout: 180,
+                    depth: 0
+                },
+                status: 200
+            }
+        }
+    ],
+    scrapybox: {
+        request: {
+            cookies: { },
+            version: "HttpVersion(major=1, minor=1)",
+            headers: {
+                CONTENT-LENGTH: "170",
+                HOST: "localhost:8080",
+                ORIGIN: "null",
+                CACHE-CONTROL: "max-age=0",
+                UPGRADE-INSECURE-REQUESTS: "1",
+                ACCEPT-LANGUAGE: "en-US,en;q=0.8",
+                ACCEPT-ENCODING: "gzip, deflate",
+                CONTENT-TYPE: "application/x-www-form-urlencoded",
+                ACCEPT: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                CONNECTION: "keep-alive",
+                USER-AGENT: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)..."
+            },
+            path: "/api/eval",
+            method: "POST",
+            scheme: "http",
+            POST: {
+                settings.ROBOTSTXT_OBEY: "on",
+                settings.USER_AGENT: "Mozilla/5.0 (X11; Linux x86_64) Scrapybox/0.1 Scrapy/1.2 Python/3.5",
+                parse: "",
+                yield_item: "on",
+                start_url: "scrapy.org"
+            },
+            payload: [ ],
+            has_body: true,
+            query: "",
+            content: [ ],
+            host: "localhost:8080"
+        }
+    }
+}
+
+
+Command line interface
+----------------------
 
 $ curl "http://127.0.0.1:8080/api/parse/eval/response.status"
 200
 
 $ curl "http://127.0.0.1:8080/api/parse/eval/response.headers"
-{b'Last-Modified': [b'Fri, 09 Aug 2013 23:54:35 GMT'], b'Etag': [b'"359670651+gzip"'], b'X-Cache': [b'HIT'], b'Date': [b'Mon, 21 Mar 2016 20:17:19 GMT'], b'X-Ec-Custom-Error': [b'1'], b'Cache-Control': [b'max-age=604800'], b'Vary': [b'Accept-Encoding'], b'Content-Type': [b'text/html'], b'Server': [b'ECS (ftw/FBE4)'], b'Expires': [b'Mon, 28 Mar 2016 20:17:19 GMT']}
+{b'Last-Modified': [b'Fri, 09 Aug 2013 23:54:35 GMT'], b'Etag': [b'"359670651+gzip"'], b'X-Cache': [b'HIT'],...}
 
 $ curl "http://127.0.0.1:8080/api/parse/eval/response"
 <200 http://www.example.com/>
@@ -15,11 +192,7 @@ $ curl "http://127.0.0.1:8080/api/parse/eval/self"
 <Spider 'parse' at 0x7f3a3af2fb38>
 
 $ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
-{'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler.Crawler object at 0x7f3a3af47b70>}
+{'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler...>}
 
 $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
 Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
-
-<Request POST /api/eval > <MultiDictProxy('start_url': 'scrapy.org', 'parse': 'text = response.xpath(\'id("scrapy-logo")/following-sibling::p\')\r\nitem = dict(text=text.extract())\r\n', 'yield_item': 'on')>
-2016-03-25 12:08:12 [aiohttp.access] INFO: 127.0.0.1 - - [25/Mar/2016:19:08:12 +0000] "POST /api/eval HTTP/1.1" 200 188 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.116 Chrome/48.0.2564.116 Safari/537.36"
-Scraped 1 items: [{'text': ['<p>An open source and collaborative framework for extracting the data you need from websites.\n      </p>', '<p>In a fast, simple, yet extensible way.</p>']}]

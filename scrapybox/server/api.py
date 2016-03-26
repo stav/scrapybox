@@ -41,6 +41,23 @@ async def parse_post(request):
     """
     await request.post()
 
+    server_info = dict(
+        request=dict(
+            host=str(request.host),
+            path=str(request.path),
+            POST=dict(request.POST),
+            query=str(request.query_string),
+            method=str(request.method),
+            scheme=str(request.scheme),
+            cookies=dict(request.cookies),
+            version=str(request.version),
+            headers=dict(request.headers),
+            content=list(request.content.read()),
+            payload=list(request.payload.read()),
+            has_body=bool(request.has_body),
+        ),
+    )
+
     class Spider(scrapybox.crawler.spiders.ExampleYieldSpider):
         pass
 
@@ -55,28 +72,33 @@ async def parse_post(request):
             url = scrapy.utils.url.add_http_if_no_scheme(value)
             Spider.start_urls = [url]
 
-    if 'parse' in request.POST:
-        value = request.POST['parse']
-        if value:
-            def parse(self, response):
-                exec(value, globals(), locals())
-                if request.POST.get('yield_item'):
-                    frame_item = locals()['item']
-                    yield frame_item
-            Spider.parse = types.MethodType(parse, Spider)
+    if request.POST.get('parse'):
+        def parse(self, response):
+            exec(request.POST['parse'], globals(), locals())
+            if request.POST.get('yield_item'):
+                frame_item = locals()['item']
+                yield frame_item
+        Spider.parse = types.MethodType(parse, Spider)
+
+    settings = dict(SETTINGS)
+
+    settings['ROBOTSTXT_OBEY'] = 'settings.ROBOTSTXT_OBEY' in request.POST
+    settings['HTTPCACHE_ENABLED'] = 'settings.HTTPCACHE_ENABLED' in request.POST
+    if 'settings.USER_AGENT' in request.POST:
+        settings['USER_AGENT'] = request.POST['settings.USER_AGENT']
 
     items = []
 
     def item_scraped(item, response, spider):
         items.append(item)
 
-    crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
+    crawler = scrapy.crawler.Crawler(Spider, settings)
     crawler.signals.connect(item_scraped, signal=scrapy.signals.item_scraped)
     crawler.crawl()
     await poll(crawler)
-    text = 'Scraped {} items: {}\n'.format(len(items), items)
+    data = dict(items=items, scrapybox=server_info)
 
-    return aiohttp.web.Response(body=text.encode('utf-8'))
+    return aiohttp.web.json_response(data)
 
 
 async def parse_get(request):

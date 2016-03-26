@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <title> Scrapybox </title>
-  <meta name="description" content="Scrapybox user interface sending form data">
+  <meta name="description" content="Scrapybox: Scrapy User Interface (SUI)">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css"> -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/skeleton.css">
   <link rel="stylesheet" href="css/skeleton_custom.css">
@@ -14,33 +14,68 @@
 </head>
 <body>
   <div class="container">
+    <form action="http://localhost:8080/api/eval" method="POST">
     <div class="row">
-      <div class="box one-half column">
+      <div class="twelve columns">
         <h4> Scrapybox </h4>
-        <p> This is for Scrapy developers that want to test spider code quickly. </p>
-        <form action="http://localhost:8080/api/eval" method="POST">
-          <div class="row">
-            <div class="u-full-width">
-              <label for="startUrl"> Start URL </label>
-              <input name="start_url" class="u-full-width" type="text" placeholder="example.com" id="startUrl">
-            </div>
-          </div>
-          <label for="parseBody">
-            Parse(self, response)
-            <div class="tooltip" title="You must: define a variable `item` if you check the yield box below. You must NOT: use `yield` or `return` in this function body.">
-              <div class="info" title=""></div>
-            </div>
-          </label>
-          <textarea name="parse" id="parseBody" class=" parse u-full-width" placeholder="text = response.xpath('id(&quot;scrapy-logo&quot;)/following-sibling::p'); item = dict(text=text.extract())"></textarea>
-          <label class="example-send-yourself-copy">
-            <input type="checkbox" name="yield_item">
-            <span class="label-body"> yield item </span>
-          </label>
-          <input class="button-primary" type="submit">
-        </form>
+        <p> This is a Scrapy interface for developers who want to test spider code quickly. </p>
       </div>
     </div>
+    <div class="row">
+      <div class="one-half column">
+
+        <label for="startUrl">
+          Start URL
+          <div class="tooltip" title="This is not Python, just a URL string, no quotes., For now only one URL supported.">
+            <div class="info" title=""></div>
+          </div>
+        </label>
+        <input type="text" name="start_url" class="u-full-width" placeholder="example.com" id="startUrl">
+
+        <label for="parseBody">
+          scrapy.Spider.parse (self, response)
+          <div class="tooltip" title="This box is executed Python: 1.) If you check the yield box below: define a variable `item` to scrape, 2.) You MUST NOT: use `yield` or `return` in this function body.">
+            <div class="info" title=""></div>
+          </div>
+        </label>
+        <textarea name="parse" id="parseBody" class="parse u-full-width" placeholder="text = response.xpath('id(&quot;scrapy-logo&quot;)/following-sibling::p'); item = dict(text=text.extract())"></textarea>
+
+        <label class="yield-item">
+          <input type="checkbox" name="yield_item" checked="checked">
+          <span class="label-body"> yield item </span>
+        </label>
+
+        <input type="submit" class="button-primary" value="crawl">
+
+      </div>
+      <div class="scrapy-settings one-half column">
+        <h5> Settings </h5>
+
+        <label for="userAgent"> USER_AGENT </label>
+        <input type="text" name="settings.USER_AGENT" class="u-full-width" placeholder="" id="userAgent">
+
+        <label>
+          ROBOTSTXT_OBEY
+          <input type="checkbox" name="settings.ROBOTSTXT_OBEY" checked="checked">
+        </label>
+
+        <label>
+          HTTPCACHE_ENABLED
+          <input type="checkbox" name="settings.HTTPCACHE_ENABLED">
+        </label>
+
+      </div>
+    </div>
+    </form>
   </div>
+  <script>
+    "use strict";
+    window.onload = function() {
+      var ua = document.getElementById("userAgent");
+      if (!ua.value) ua.value = navigator.userAgent;
+      if (!ua.placeholder) ua.placeholder = navigator.userAgent;
+    }
+  </script>
   <!-- <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script> -->
 </body>
 </html>
