@@ -179,19 +179,19 @@ via an HTML webapge interface.
 Command line interface
 ----------------------
 
-$ curl "http://127.0.0.1:8080/api/parse/eval/response.status"
+$ curl "http://127.0.0.1:8080/api/eval/response.status"
 200
 
-$ curl "http://127.0.0.1:8080/api/parse/eval/response.headers"
+$ curl "http://127.0.0.1:8080/api/eval/response.headers"
 {b'Last-Modified': [b'Fri, 09 Aug 2013 23:54:35 GMT'], b'Etag': [b'"359670651+gzip"'], b'X-Cache': [b'HIT'],...}
 
-$ curl "http://127.0.0.1:8080/api/parse/eval/response"
+$ curl "http://127.0.0.1:8080/api/eval/response"
 <200 http://www.example.com/>
 
-$ curl "http://127.0.0.1:8080/api/parse/eval/self"
+$ curl "http://127.0.0.1:8080/api/eval/self"
 <Spider 'parse' at 0x7f3a3af2fb38>
 
-$ curl "http://127.0.0.1:8080/api/parse/eval/self.__dict__"
+$ curl "http://127.0.0.1:8080/api/eval/self.__dict__"
 {'settings': <scrapy.settings.Settings object at 0x7f3a3af47e10>, 'result': {...}, 'crawler': <scrapy.crawler...>}
 
 $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
