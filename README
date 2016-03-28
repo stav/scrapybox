@@ -196,3 +196,11 @@ $ curl "http://127.0.0.1:8080/api/eval/self.__dict__"
 
 $ curl localhost:8080/api/eval -d start_urls=[\"http://scrapinghub.com\",\"http://scrapy.org\"]
 Crawled responses: [<200 http://scrapinghub.com/>, <200 http://scrapy.org>]
+
+
+Requirements
+------------
+
+Python 3.5.0+
+
+.. seealso:: requirements.txt

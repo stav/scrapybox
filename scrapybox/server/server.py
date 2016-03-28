@@ -1,19 +1,22 @@
 import scrapybox.server._twisted_monkey_patches
 
+import os
 import asyncio
 import logging
 import aiohttp.web
+import aiohttp_jinja2
 # import aiohttp_debugtoolbar
 import twisted.internet.reactor
+import jinja2
 
 from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 
 import scrapybox.server.routes
 
-settings = get_project_settings()
-
 logger = logging.getLogger(__name__)
+settings = get_project_settings()
+user_path = os.path.join(os.getcwd(), 'scrapybox/user')
 
 
 async def on_shutdown(app):
@@ -73,9 +76,11 @@ def main():
         # middlewares=[aiohttp_debugtoolbar.toolbar_middleware_factory]
     )
     # aiohttp_debugtoolbar.setup(app)  # http://127.0.0.1:8080/_debugtoolbar
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(user_path))
     app.on_shutdown.append(on_shutdown)
+    app['static_path'] = user_path
 
-    scrapybox.server.routes.add(app.router)
+    scrapybox.server.routes.add(app)
 
     logger.info('Aiohttp server starting')
     aiohttp.web.run_app(app)
