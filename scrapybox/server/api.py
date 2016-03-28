@@ -1,5 +1,6 @@
 import types
 import asyncio
+import logging
 import aiohttp.web
 import scrapy.signals
 import scrapy.crawler
@@ -9,6 +10,8 @@ from scrapy.utils.project import get_project_settings
 import scrapybox.crawler.spiders
 
 SETTINGS = get_project_settings()
+
+logger = logging.getLogger(__name__)
 
 
 async def poll(crawler, time=1):
@@ -94,6 +97,7 @@ async def parse_post(request):
 
     crawler = scrapy.crawler.Crawler(Spider, settings)
     crawler.signals.connect(item_scraped, signal=scrapy.signals.item_scraped)
+    logger.debug('API starting to crawl {}'.format(crawler))
     crawler.crawl()
     await poll(crawler)
     data = dict(items=items, scrapybox=server_info)
@@ -129,6 +133,7 @@ async def parse_get(request):
             return request.match_info.get('code')
 
     crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
+    logger.debug('API starting to crawl {}'.format(crawler))
     crawler.crawl()
     await poll(crawler)
     text = '{}\n'.format(crawler.spider.result)
@@ -150,6 +155,7 @@ async def delay(request):
     """
     Spider = scrapybox.crawler.spiders.ExampleSpider
     crawler = scrapy.crawler.Crawler(Spider, SETTINGS)
+    logger.debug('API starting to crawl {}'.format(crawler))
     crawler.crawl()
     await poll(crawler, float(request.match_info.get('time')))
     text = '{}\n'.format(request.path)

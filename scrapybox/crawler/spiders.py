@@ -10,6 +10,7 @@ class ExampleSpider(scrapy.Spider):
 
 
 class ExampleYieldSpider(ExampleSpider):
+    name = 'example-yield'
 
     def parse(self, response):
         yield dict(
