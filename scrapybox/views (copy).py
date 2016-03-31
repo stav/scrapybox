@@ -1,4 +1,5 @@
 # import asyncio
+import queue
 import logging
 import logging.handlers
 import aiohttp
@@ -17,14 +18,12 @@ def sockettest(request):
     return {}
 
 
-class SocketStream():
-    def __init__(self, socket):
-        self.socket = socket
-
-    def write(self, message):
-        if message:
-            message = message.replace('\n', '')  # debug
-            self.socket.send_str('_.-~+=>^ ({})'.format(message[:99]))
+class SocketQueueListener(logging.handlers.QueueListener):
+    socket = None
+    def prepare(self, record):
+        if self.socket:
+            self.socket.send_str(record.msg)
+        return record
 
 
 async def socketconn(request):
@@ -34,26 +33,32 @@ async def socketconn(request):
     await ws.prepare(request)
     logger.debug('WebSocket prepared {}'.format(ws))
 
-    formatter = logging.Formatter('[%(name)s.%(funcName)s] %(levelname)s: %(message)s')
-    handler = logging.StreamHandler(SocketStream(ws))
-    handler.terminator = ''
-    handler.setFormatter(formatter)
-    socket_logger = logging.getLogger(str(id(object())))
-    # socket_logger.propagate = False
-    socket_logger.setLevel(logging.DEBUG)
-    socket_logger.addHandler(handler)
-    # logging.root.addHandler(handler)
+    formatter = logging.Formatter('%(threadName)s: %(message)s')
+
+    que = queue.Queue(-1)
+    queue_handler = logging.handlers.QueueHandler(que)
+    queue_handler.setFormatter(formatter)
+
+    listener = SocketQueueListener(que, queue_handler)
+    listener.socket = ws
+
+    root_logger = logging.getLogger('')
+    root_logger.addHandler(queue_handler)
+
+    listener.start()
+    root_logger.warning('Look out!')
 
     import scrapybox.api
     class Request():
         POST = None
         async def post(self):
             self.POST = {'yield_item': True, 'settings.HTTPCACHE_ENABLED': True}
-    response = await scrapybox.api.parse_post(Request())
+    request = Request()
+    response = await scrapybox.api.parse_post(request)
     logger.debug('Response {} keys: {}'.format(len(response), str(response)[:200]))
 
-    socket_logger.removeHandler(handler)
-    # logging.root.removeHandler(handler)
+    root_logger.removeHandler(queue_handler)
+    listener.stop()
     ws.send_str('close')
 
     async for msg in ws:

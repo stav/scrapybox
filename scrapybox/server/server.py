@@ -9,13 +9,10 @@ import aiohttp_jinja2
 import twisted.internet.reactor
 import jinja2
 
-from scrapy.utils.log import configure_logging
-from scrapy.utils.project import get_project_settings
-
+import scrapybox.server.log
 import scrapybox.server.routes
 
 logger = logging.getLogger(__name__)
-settings = get_project_settings()
 user_path = os.path.join(os.getcwd(), 'scrapybox/user')
 
 
@@ -59,7 +56,7 @@ def main():
         need to access Scrapy loggger's handler and replace the filter with a new
         TopLevelFormatter with more names: e.g. ['scrapy', 'scrapybox', 'aiohttp']
     """
-    configure_logging(settings)
+    scrapybox.server.log.configure()
     logger.info('Scrapybox server starting')
     # formatter = logging.Formatter(fmt=settings.get('LOG_FORMAT'),
     #                               datefmt=settings.get('LOG_DATEFORMAT'))

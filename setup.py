@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='scrapybox',
-    version='0.1',
+    version='0.1.1',
     license='BSD',
     url='https://github.com/stav/scrapybox',
     download_url='https://github.com/stav/scrapybox/archive/master.zip',
@@ -19,7 +19,7 @@ setuptools.setup(
     keywords=[
         'scrapy',
         'async',
-        'server',
+        'GUI',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

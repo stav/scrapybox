@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title> Scrapybox socket test </title>
+  <meta name="description" content="Scrapybox socket test">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/normalize.css">
+  <link rel="stylesheet" href="/static/skeleton.css">
+  <link rel="stylesheet" href="/static/scrapybox.css">
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="twelve columns">
+        <h4> Scrapybox </h4>
+        <p> This is a Scrapy interface for developers who want to test spider code quickly. </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    "use strict";
+
+    window.onload = function() {
+
+      var socket = new WebSocket("ws://localhost:8080/socketconn");
+
+      socket.onopen = function (event) {
+        console.log('Connection opened');
+        console.log(event);
+        socket.send("Here's some text that the server is urgently awaiting!");
+      }
+
+      socket.onerror = function (error) {
+        console.log('WebSocket Error ' + error);
+        socket.close();
+      };
+
+      socket.onmessage = function (e) {
+        console.log('Message received: ' + e.data);
+        if ( e.data == 'close' ) {
+          console.log('closing');
+          socket.close();
+        }
+      };
+
+      socket.onclose = function ( ) {
+        console.log('Connection closed');
+      }
+
+    }
+  </script>
+</body>
+</html>

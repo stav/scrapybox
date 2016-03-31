@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 async def poll(crawler, time=1):
     while crawler.crawling:
+        logger.debug('API polling {}'.format(crawler))
         await asyncio.sleep(time)
 
 
@@ -46,18 +47,18 @@ async def parse_post(request):
 
     server_info = dict(
         request=dict(
-            host=str(request.host),
-            path=str(request.path),
+            # host=str(request.host),
+            # path=str(request.path),
             POST=dict(request.POST),
-            query=str(request.query_string),
-            method=str(request.method),
-            scheme=str(request.scheme),
-            cookies=dict(request.cookies),
-            version=str(request.version),
-            headers=dict(request.headers),
-            content=list(request.content.read()),
-            payload=list(request.payload.read()),
-            has_body=bool(request.has_body),
+            # query=str(request.query_string),
+            # method=str(request.method),
+            # scheme=str(request.scheme),
+            # cookies=dict(request.cookies),
+            # version=str(request.version),
+            # headers=dict(request.headers),
+            # content=list(request.content.read()),
+            # payload=list(request.payload.read()),
+            # has_body=bool(request.has_body),
         ),
     )
 
@@ -98,11 +99,18 @@ async def parse_post(request):
     crawler = scrapy.crawler.Crawler(Spider, settings)
     crawler.signals.connect(item_scraped, signal=scrapy.signals.item_scraped)
     logger.debug('API starting to crawl {}'.format(crawler))
-    crawler.crawl()
-    await poll(crawler)
-    data = dict(items=items, scrapybox=server_info)
 
-    return aiohttp.web.json_response(data)
+    d = crawler.crawl()
+    # d.addCallback(self._on_finished)
+    # d.addErrback(self._on_error)
+
+    logger.debug('API starting to poll {}'.format(crawler))
+    await poll(crawler)
+    logger.debug('API crawler finished {}'.format(crawler))
+    data = dict(items=items, scrapybox=server_info)
+    logger.debug('API data {} keys: {}'.format(len(data), str(data)[:200]))
+
+    return (data)
 
 
 async def parse_get(request):

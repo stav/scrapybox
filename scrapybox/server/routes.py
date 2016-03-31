@@ -11,7 +11,9 @@ def add(app):
     ar('GET',  '/api/hello',        api.hello)
 
     # Client
-    ar('*', '/', views.default)
+    ar('GET', '/sockettest', views.sockettest)
+    ar('*',   '/socketconn', views.socketconn)
+    ar('*',   '/',           views.default)
 
     # Static
     app.router.add_static('/static', app['static_path'])

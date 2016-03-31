@@ -1,7 +1,9 @@
 README
 
-Scrapybox - a Scrapy GUI
-------------------------
+Scrapybox - Graphical Scrapy Interface (GSI)
+--------------------------------------------
+
+*...or How I Learned to Stop Worrying and Love the Scrapy.*
 
 A RESTful async Python web server that runs arbitrary code within Scrapy spiders
 via an HTML webapge interface.
