@@ -44,11 +44,13 @@ async def parse_post(request):
     """
     await request.post()
 
+    request_POST = dict(request.post())
+
     server_info = dict(
         request=dict(
             host=str(request.host),
             path=str(request.path),
-            POST=dict(request.POST),
+            POST=dict(request_POST),
             query=str(request.query_string),
             method=str(request.method),
             scheme=str(request.scheme),
@@ -56,7 +58,7 @@ async def parse_post(request):
             version=str(request.version),
             headers=dict(request.headers),
             content=list(request.content.read()),
-            payload=list(request.payload.read()),
+            # payload=list(request.payload.read()),
             has_body=bool(request.has_body),
         ),
     )
@@ -64,31 +66,31 @@ async def parse_post(request):
     class Spider(scrapybox.crawler.spiders.ExampleYieldSpider):
         pass
 
-    if 'start_urls' in request.POST:
-        value = request.POST['start_urls'].strip()
+    if 'start_urls' in request_POST:
+        value = request_POST['start_urls'].strip()
         if value:
             Spider.start_urls = eval(value)
 
-    if 'start_url' in request.POST:
-        value = request.POST['start_url'].strip()
+    if 'start_url' in request_POST:
+        value = request_POST['start_url'].strip()
         if value:
             url = scrapy.utils.url.add_http_if_no_scheme(value)
             Spider.start_urls = [url]
 
-    if request.POST.get('parse'):
+    if request_POST.get('parse'):
         def parse(self, response):
-            exec(request.POST['parse'], globals(), locals())
-            if request.POST.get('yield_item'):
+            exec(request_POST['parse'], globals(), locals())
+            if request_POST.get('yield_item'):
                 frame_item = locals()['item']
                 yield frame_item
         Spider.parse = types.MethodType(parse, Spider)
 
     settings = dict(SETTINGS)
 
-    settings['ROBOTSTXT_OBEY'] = 'settings.ROBOTSTXT_OBEY' in request.POST
-    settings['HTTPCACHE_ENABLED'] = 'settings.HTTPCACHE_ENABLED' in request.POST
-    if 'settings.USER_AGENT' in request.POST:
-        settings['USER_AGENT'] = request.POST['settings.USER_AGENT']
+    settings['ROBOTSTXT_OBEY'] = 'settings.ROBOTSTXT_OBEY' in request_POST
+    settings['HTTPCACHE_ENABLED'] = 'settings.HTTPCACHE_ENABLED' in request_POST
+    if 'settings.USER_AGENT' in request_POST:
+        settings['USER_AGENT'] = request_POST['settings.USER_AGENT']
 
     items = []
 
